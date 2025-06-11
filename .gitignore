@@ -257,3 +257,5 @@ ModelManifest.xml
 .idea/
 /obj
 /bin
+
+SenderTo/appsettings.Development.json
