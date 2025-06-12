@@ -92,7 +92,7 @@ public class BotHandler(
             await bot.DownloadFile(tgFile, stream);
             stream.Position = 0;
 
-            await mediaService.SavePhoto(stream);
+            var filename = await mediaService.SavePhoto(stream);
 
             return true;
         }

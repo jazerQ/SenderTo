@@ -2,5 +2,5 @@ namespace SenderTo.Application.Services.PhotoService;
 
 public interface IMediaService
 {
-    Task SavePhoto(MemoryStream memoryStream);
+    Task<string> SavePhoto(MemoryStream memoryStream);
 }

@@ -20,9 +20,11 @@ public class MediaService : IMediaService
             new AuthenticationHeaderValue("OAuth", options.CurrentValue.Token);
     }
     
-    public async Task SavePhoto(MemoryStream memoryStream)
+    public async Task<string> SavePhoto(MemoryStream memoryStream)
     {
-        var response = await _client.GetAsync(_uploadedUrl + $"{Guid.NewGuid().ToString()}.png");
+        var filename = $"{Guid.NewGuid().ToString()}.png";
+        
+        var response = await _client.GetAsync(_uploadedUrl + filename);
         var json = await response.Content.ReadAsStringAsync();
         var uploadedLink = JsonDocument.Parse(json).RootElement.GetProperty("href").GetString();
 
@@ -34,6 +36,8 @@ public class MediaService : IMediaService
 
         if (result.StatusCode != HttpStatusCode.Created)
             throw new Exception("фотография не была загружена на Сервер");
+
+        return filename;
 
     }
 }
