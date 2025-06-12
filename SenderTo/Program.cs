@@ -1,3 +1,7 @@
+using SenderTo;
+using SenderTo.Application.Services;
+using SenderTo.Application.Services.Telegram;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging
@@ -8,7 +12,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddHostedService<>();
+builder.GetServices();
+
+builder.Services.AddHostedService<TelegramService>();
 
 var app = builder.Build();
 
