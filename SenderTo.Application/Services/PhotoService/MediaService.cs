@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using SenderTo.Core;
+using SenderTo.Core.Settings;
 
 namespace SenderTo.Application.Services.PhotoService;
 

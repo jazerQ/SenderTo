@@ -2,6 +2,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SenderTo.Application.Services.Telegram.Handler;
 using SenderTo.Core;
+using SenderTo.Core.Settings;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;

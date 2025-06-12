@@ -1,4 +1,4 @@
-namespace SenderTo.Core;
+namespace SenderTo.Core.Settings;
 
 public class TelegramSettings
 {

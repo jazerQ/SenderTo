@@ -1,6 +1,6 @@
 using SenderTo.Application.Services.PhotoService;
 using SenderTo.Application.Services.Telegram.Handler;
-using SenderTo.Core;
+using SenderTo.Core.Settings;
 
 namespace SenderTo;
 
@@ -15,6 +15,9 @@ public static class Injection
 
         builder.Services.Configure<YandexSettings>(
             builder.Configuration.GetSection("YandexSettings"));
+        
+        builder.Services.Configure<RabbitSettings>(
+            builder.Configuration.GetSection("RabbitSettings"));
         #endregion
         #region TransientServices
         builder.Services.AddTransient<IBotHandler, BotHandler>();

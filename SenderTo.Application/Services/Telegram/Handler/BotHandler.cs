@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using SenderTo.Application.Services.PhotoService;
 using SenderTo.Core;
+using SenderTo.Core.Settings;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
