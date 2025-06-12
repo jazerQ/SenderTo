@@ -1,11 +1,14 @@
 using Microsoft.Extensions.Options;
+using SenderTo.Application.Services.PhotoService;
 using SenderTo.Core;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace SenderTo.Application.Services.Telegram.Handler;
 
-public class BotHandler(IOptionsMonitor<TelegramSettings> options) : IBotHandler
+public class BotHandler(
+    IOptionsMonitor<TelegramSettings> options,
+    IMediaService mediaService) : IBotHandler
 {
     public async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken)
     {
@@ -13,11 +16,21 @@ public class BotHandler(IOptionsMonitor<TelegramSettings> options) : IBotHandler
         {
             if (IsPhoto(update))
             {
-                await GetPhoto(bot, update.Message!.Photo!.Last());
+                var responseMessage = await TryToSavePhoto(bot, update.Message!.Photo!.Last())
+                    ? "Успешно Сохранил фотографию на диске"
+                    : "Не смог сохранить фотографию на диске";
+                
+                await bot.SendMessage(
+                    chatId: options.CurrentValue.AdminChat,
+                    text: responseMessage,
+                    cancellationToken: cancellationToken);
+                return;
             }
             
             var msg = GetMessage(update);
-            var chatId = msg.Chat.Id;
+            if (msg is null) return;
+            
+            ChatId chatId = msg.Chat.Id;
             var user = msg.From;
             
             await bot.SendMessage(chatId, $"Id этого чата - {chatId}", cancellationToken: cancellationToken);
@@ -59,42 +72,34 @@ public class BotHandler(IOptionsMonitor<TelegramSettings> options) : IBotHandler
             Console.WriteLine($"Inner: {ex.InnerException.Message}");
     }
     
-    private Message GetMessage(Update update)
+    private Message? GetMessage(Update update)
     {
-        if (update is null ||
-            update.Message is null ||
-            update.Message.From is null ||
-            string.IsNullOrEmpty(update.Message.Text)) 
-            throw new Exception("не нашел обновления или сообщения");
-        
-        return update.Message!;
+        return update.Message!.Text is not null ? update.Message : null;
     }
 
     private bool IsPhoto(Update update)
     {
-        if (update.Message.Photo is not null)
-        {
-            Console.WriteLine("Это фото");
-            foreach (var elem in update.Message.Photo)
-            {
-                Console.WriteLine($"Width - {elem.Width}," +
-                                  $"Height - {elem.Height}," +
-                                  $"FileId - {elem.FileId}," +
-                                  $"FileSize - {elem.FileSize}," +
-                                  $"FileUniqueId - {elem.FileUniqueId}");
-            }
-            return true;
-        }
-        return false;
+        return update.Message!.Photo is not null;
     }
 
-    private async Task GetPhoto(ITelegramBotClient bot, PhotoSize photo)
+    private async Task<bool> TryToSavePhoto(ITelegramBotClient bot, PhotoSize photo)
     {
-        TGFile tgFile = await bot.GetFile(photo.FileId);
-        
-        await using var stream = File.Create($@"C:\Users\jazer\Desktop\photos\{tgFile.FileId}.jpg");
-        await bot.DownloadFile(tgFile, stream);
+        try
+        {
+            TGFile tgFile = await bot.GetFile(photo.FileId);
 
-        await bot.SendMessage(options.CurrentValue.AdminChat, "Сохранил фото");
+            await using var stream = new MemoryStream();
+            await bot.DownloadFile(tgFile, stream);
+            stream.Position = 0;
+
+            await mediaService.SavePhoto(stream);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка {ex.Message}");
+            return false;
+        }
     }
 }
