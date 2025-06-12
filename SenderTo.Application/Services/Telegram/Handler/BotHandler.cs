@@ -1,14 +1,21 @@
+using Microsoft.Extensions.Options;
+using SenderTo.Core;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace SenderTo.Application.Services.Telegram.Handler;
 
-public class BotHandler : IBotHandler
+public class BotHandler(IOptionsMonitor<TelegramSettings> options) : IBotHandler
 {
     public async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken)
     {
         try
         {
+            if (IsPhoto(update))
+            {
+                await GetPhoto(bot, update.Message!.Photo!.Last());
+            }
+            
             var msg = GetMessage(update);
             var chatId = msg.Chat.Id;
             var user = msg.From;
@@ -30,9 +37,9 @@ public class BotHandler : IBotHandler
                 #region DefaultCommand
 
                 default:
-                    await bot.SendMessage(chatId,
-                        "Не понимаю",
-                        cancellationToken: cancellationToken);
+                    // await bot.SendMessage(chatId,
+                    //     "Не понимаю",
+                    //     cancellationToken: cancellationToken);
                     break;
 
                 #endregion
@@ -61,5 +68,33 @@ public class BotHandler : IBotHandler
             throw new Exception("не нашел обновления или сообщения");
         
         return update.Message!;
+    }
+
+    private bool IsPhoto(Update update)
+    {
+        if (update.Message.Photo is not null)
+        {
+            Console.WriteLine("Это фото");
+            foreach (var elem in update.Message.Photo)
+            {
+                Console.WriteLine($"Width - {elem.Width}," +
+                                  $"Height - {elem.Height}," +
+                                  $"FileId - {elem.FileId}," +
+                                  $"FileSize - {elem.FileSize}," +
+                                  $"FileUniqueId - {elem.FileUniqueId}");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private async Task GetPhoto(ITelegramBotClient bot, PhotoSize photo)
+    {
+        TGFile tgFile = await bot.GetFile(photo.FileId);
+        
+        await using var stream = File.Create($@"C:\Users\jazer\Desktop\photos\{tgFile.FileId}.jpg");
+        await bot.DownloadFile(tgFile, stream);
+
+        await bot.SendMessage(options.CurrentValue.AdminChat, "Сохранил фото");
     }
 }
