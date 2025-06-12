@@ -1,3 +1,4 @@
+using SenderTo.Application.Services.Telegram.Handler;
 using SenderTo.Core;
 
 namespace SenderTo;
@@ -9,6 +10,8 @@ public static class Injection
         builder.Services.Configure<TelegramSettings>(
             builder.Configuration.GetSection("TelegramBot"));
 
+        builder.Services.AddTransient<IBotHandler, BotHandler>();
+        
         return builder;
     }
 }
