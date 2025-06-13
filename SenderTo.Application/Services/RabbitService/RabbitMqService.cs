@@ -81,9 +81,19 @@ public class RabbitMqService : IBrokerService
 
     private async Task<IConnection> GetConnectionAsync()
     {
-        if (_connection?.IsOpen == false || _connection is null)
+        if (_connection is { IsOpen: true }) return _connection;
+        
+        try
         {
-            _connection = await _factory.CreateConnectionAsync();
+            await _lock.WaitAsync();
+            if (_connection?.IsOpen == false || _connection is null)
+            {
+                _connection = await _factory.CreateConnectionAsync();
+            }
+        }
+        finally
+        {
+            _lock.Release();
         }
 
         return _connection;
