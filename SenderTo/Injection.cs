@@ -1,4 +1,5 @@
 using SenderTo.Application.Services.PhotoService;
+using SenderTo.Application.Services.RabbitService;
 using SenderTo.Application.Services.Telegram.Handler;
 using SenderTo.Core.Settings;
 
@@ -24,6 +25,7 @@ public static class Injection
         #endregion
         #region SingletonServices
         builder.Services.AddSingleton<IMediaService, MediaService>();
+        builder.Services.AddSingleton<IBrokerService, RabbitMqService>();
         #endregion
         return builder;
     }

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 using SenderTo.Application.Services.PhotoService;
-using SenderTo.Core;
+using SenderTo.Application.Services.RabbitService;
 using SenderTo.Core.Settings;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -9,7 +9,8 @@ namespace SenderTo.Application.Services.Telegram.Handler;
 
 public class BotHandler(
     IOptionsMonitor<TelegramSettings> options,
-    IMediaService mediaService) : IBotHandler
+    IMediaService mediaService,
+    IBrokerService brokerService) : IBotHandler
 {
     public async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken)
     {
@@ -94,7 +95,7 @@ public class BotHandler(
             stream.Position = 0;
 
             var filename = await mediaService.SavePhoto(stream);
-
+            await brokerService.SendMessage(filename);
             return true;
         }
         catch (Exception ex)
