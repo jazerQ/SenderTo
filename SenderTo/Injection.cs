@@ -1,4 +1,3 @@
-using SenderTo.Application.Services.PhotoService;
 using SenderTo.Application.Services.RabbitService;
 using SenderTo.Application.Services.Telegram.Handler;
 using SenderTo.Core.Settings;
@@ -13,10 +12,8 @@ public static class Injection
         #region Settings
         builder.Services.Configure<TelegramSettings>(
             builder.Configuration.GetSection("TelegramBot"));
-
-        builder.Services.Configure<YandexSettings>(
-            builder.Configuration.GetSection("YandexSettings"));
-        
+        builder.Services.Configure<DiskSettings>(
+            builder.Configuration.GetSection("DiskSettings"));
         builder.Services.Configure<RabbitSettings>(
             builder.Configuration.GetSection("RabbitSettings"));
         #endregion
@@ -24,7 +21,6 @@ public static class Injection
         builder.Services.AddTransient<IBotHandler, BotHandler>();
         #endregion
         #region SingletonServices
-        builder.Services.AddSingleton<IMediaService, MediaService>();
         builder.Services.AddSingleton<IBrokerService, RabbitMqService>();
         #endregion
         return builder;
