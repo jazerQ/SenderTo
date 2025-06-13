@@ -1,12 +1,12 @@
 syntax = "proto3";
 
-option csharp_namespace = "GrpcDiskServiceApp";
+option csharp_namespace = "GrpcDiskClientApp";
 
 package disk;
 
 service DiskImager {
   rpc ImageUpload (ImageUploadRequest) returns (ImageUploadResponse);
-  
+
   rpc ImageDownload (ImageDownloadRequest) returns (ImageDownloadResponse);
 }
 
