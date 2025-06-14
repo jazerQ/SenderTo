@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YandexDiskService", "Yandex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuoteService", "QuoteService\QuoteService.csproj", "{C5293768-EBC2-45A0-9D31-B5DB245B6523}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkPublisherService", "VkPublisherService\VkPublisherService.csproj", "{249B3BF9-D36D-44FF-B7B0-BDE36C980639}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{C5293768-EBC2-45A0-9D31-B5DB245B6523}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5293768-EBC2-45A0-9D31-B5DB245B6523}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5293768-EBC2-45A0-9D31-B5DB245B6523}.Release|Any CPU.Build.0 = Release|Any CPU
+		{249B3BF9-D36D-44FF-B7B0-BDE36C980639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{249B3BF9-D36D-44FF-B7B0-BDE36C980639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{249B3BF9-D36D-44FF-B7B0-BDE36C980639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{249B3BF9-D36D-44FF-B7B0-BDE36C980639}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
