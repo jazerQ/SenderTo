@@ -12,8 +12,9 @@ public class RabbitMqListener : BackgroundService
     private IConnection? _connection;
     private readonly IOptionsMonitor<RabbitSettings> _options;
     private readonly SemaphoreSlim _lock = new(1, 1);
-
-    public RabbitMqListener(IOptionsMonitor<RabbitSettings> options)
+    private readonly NeuroService _neuroService;
+    
+    public RabbitMqListener(IOptionsMonitor<RabbitSettings> options, NeuroService neuroService)
     {
         _options = options;
         _factory = new ConnectionFactory
@@ -22,6 +23,7 @@ public class RabbitMqListener : BackgroundService
             AutomaticRecoveryEnabled = true,
             NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
         };
+        _neuroService = neuroService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -46,7 +48,9 @@ public class RabbitMqListener : BackgroundService
             string message = Encoding.UTF8.GetString(body);
 
             Console.WriteLine($"Получено сообщение - {message}");
-
+            var quote = await _neuroService.GetQuote();
+            
+            Console.WriteLine(quote);
             await ((AsyncEventingBasicConsumer)sender).Channel.BasicAckAsync(
                 eventArgs.DeliveryTag,
                 multiple: false,

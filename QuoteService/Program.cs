@@ -6,11 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddTransient<NeuroService>();
 builder.Services.Configure<RabbitSettings>(
     builder.Configuration.GetSection("RabbitSettings"));
 builder.Services.Configure<DeepSeekSettings>(
-    builder.Configuration.GetSection("RabbitSettings"));
+    builder.Configuration.GetSection("DeepSeekSettings"));
 
 builder.Services.AddHostedService<RabbitMqListener>();
 
