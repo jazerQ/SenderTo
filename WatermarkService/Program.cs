@@ -1,4 +1,3 @@
-using WatermarkService;
 using WatermarkService.Services;
 using WatermarkService.Settings;
 
@@ -7,9 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+builder.Services.Configure<DiskSettings>(
+    builder.Configuration.GetSection("DiskSettings"));
 builder.Services.Configure<RabbitSettings>(
     builder.Configuration.GetSection("RabbitSettings"));
+
+builder.Services.AddTransient<MarkService>();
 
 builder.Services.AddHostedService<RabbitMqListener>();
 

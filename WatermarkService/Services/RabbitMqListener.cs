@@ -1,4 +1,8 @@
 using System.Text;
+using Google.Protobuf;
+using Grpc.Net.Client;
+using GrpcDiskClientApp;
+using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -11,9 +15,11 @@ public class RabbitMqListener : BackgroundService
     private readonly ConnectionFactory _factory;
     private IConnection? _connection;
     private readonly IOptionsMonitor<RabbitSettings> _options;
+    private readonly IOptionsMonitor<DiskSettings> _diskSettings;
     private readonly SemaphoreSlim _lock = new(1, 1);
+    private readonly MarkService _markService;
 
-    public RabbitMqListener(IOptionsMonitor<RabbitSettings> options)
+    public RabbitMqListener(IOptionsMonitor<RabbitSettings> options, IOptionsMonitor<DiskSettings> diskSettings,MarkService markService)
     {
         _options = options;
         _factory = new ConnectionFactory
@@ -22,6 +28,8 @@ public class RabbitMqListener : BackgroundService
             AutomaticRecoveryEnabled = true,
             NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
         };
+        _markService = markService;
+        _diskSettings = diskSettings;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -43,8 +51,22 @@ public class RabbitMqListener : BackgroundService
         {
             byte[] body = eventArgs.Body.ToArray();
             string message = Encoding.UTF8.GetString(body);
-    
-            Console.WriteLine($"Received {message}");
+
+            Console.WriteLine($"Получено сообщение - {message}");
+            using (var channel = GrpcChannel.ForAddress(_diskSettings.CurrentValue.HostName))
+            {
+                var client = new DiskImager.DiskImagerClient(channel);
+                var downloadRequest = new ImageDownloadRequest { Filename = message };
+                Console.WriteLine("Test!");
+                var downloadResponse = await client.ImageDownloadAsync(downloadRequest);
+                Console.WriteLine("HUI");
+                var bytes = _markService.SetWatermark(downloadResponse.Image.ToByteArray());
+                Console.WriteLine("Testgfregfre");
+                var uploadRequest = new ImageUploadRequest { Image = ByteString.CopyFrom(bytes) };
+                var uploadResponse = await client.ImageUploadAsync(uploadRequest);
+                
+                Console.WriteLine(uploadResponse.Filename);
+            }
 
             await ((AsyncEventingBasicConsumer)sender).Channel.BasicAckAsync(
                 eventArgs.DeliveryTag,
