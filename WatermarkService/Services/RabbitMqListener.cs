@@ -2,7 +2,6 @@ using System.Text;
 using Google.Protobuf;
 using Grpc.Net.Client;
 using GrpcDiskClientApp;
-using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -36,6 +35,7 @@ public class RabbitMqListener : BackgroundService
     {
         _connection = await GetConnectionAsync();
         var channel = await _connection.CreateChannelAsync(cancellationToken: stoppingToken);
+        
         await channel.QueueDeclareAsync(  // создает новую очередь сообщений если ее еще нет
             queue: _options.CurrentValue.QueueName,
             durable: true,
@@ -53,18 +53,39 @@ public class RabbitMqListener : BackgroundService
             string message = Encoding.UTF8.GetString(body);
 
             Console.WriteLine($"Получено сообщение - {message}");
-            using (var channel = GrpcChannel.ForAddress(_diskSettings.CurrentValue.HostName))
+            using (var channelGrpc = GrpcChannel.ForAddress(_diskSettings.CurrentValue.HostName))
             {
-                var client = new DiskImager.DiskImagerClient(channel);
+                var client = new DiskImager.DiskImagerClient(channelGrpc);
                 var downloadRequest = new ImageDownloadRequest { Filename = message };
-                Console.WriteLine("Test!");
+                
                 var downloadResponse = await client.ImageDownloadAsync(downloadRequest);
-                Console.WriteLine("HUI");
+                
                 var bytes = _markService.SetWatermark(downloadResponse.Image.ToByteArray());
-                Console.WriteLine("Testgfregfre");
+                
                 var uploadRequest = new ImageUploadRequest { Image = ByteString.CopyFrom(bytes) };
                 var uploadResponse = await client.ImageUploadAsync(uploadRequest);
-                
+                await channel.QueueDeclareAsync(
+                    queue: _options.CurrentValue.QueueQuote,
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null
+                );
+
+                await channel.QueueBindAsync(
+                    queue: _options.CurrentValue.QueueQuote,
+                    exchange: _options.CurrentValue.ExchangeName,
+                    routingKey: _options.CurrentValue.QueueQuote);
+
+                var bodyBytes = Encoding.UTF8.GetBytes(uploadResponse.Filename);
+
+                await channel.BasicPublishAsync(
+                    exchange: _options.CurrentValue.ExchangeName,
+                    routingKey: _options.CurrentValue.QueueQuote,
+                    mandatory: true,
+                    basicProperties: new BasicProperties(){ Persistent = true},
+                    body: bodyBytes
+                );
                 Console.WriteLine(uploadResponse.Filename);
             }
 

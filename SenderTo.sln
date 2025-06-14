@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatermarkService", "Waterma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YandexDiskService", "YandexDiskService\YandexDiskService.csproj", "{9DC82E54-983C-4F7A-92BA-AE3D557B77B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuoteService", "QuoteService\QuoteService.csproj", "{C5293768-EBC2-45A0-9D31-B5DB245B6523}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{9DC82E54-983C-4F7A-92BA-AE3D557B77B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DC82E54-983C-4F7A-92BA-AE3D557B77B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DC82E54-983C-4F7A-92BA-AE3D557B77B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5293768-EBC2-45A0-9D31-B5DB245B6523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5293768-EBC2-45A0-9D31-B5DB245B6523}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5293768-EBC2-45A0-9D31-B5DB245B6523}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5293768-EBC2-45A0-9D31-B5DB245B6523}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
