@@ -1,5 +1,7 @@
+using Google.Protobuf;
+using Grpc.Net.Client;
+using GrpcDiskClientApp;
 using Microsoft.Extensions.Options;
-using SenderTo.Application.Services.PhotoService;
 using SenderTo.Application.Services.RabbitService;
 using SenderTo.Core.Settings;
 using Telegram.Bot;
@@ -8,24 +10,19 @@ using Telegram.Bot.Types;
 namespace SenderTo.Application.Services.Telegram.Handler;
 
 public class BotHandler(
-    IOptionsMonitor<TelegramSettings> options,
-    IMediaService mediaService,
+    IOptionsMonitor<TelegramSettings> optionsTelegram,
+    IOptionsMonitor<DiskSettings> optionsDisk,
     IBrokerService brokerService) : IBotHandler
 {
     public async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken)
     {
         try
         {
+            if (update.Message is null) return;
+            
             if (IsPhoto(update))
             {
-                var responseMessage = await TryToSavePhoto(bot, update.Message!.Photo!.Last())
-                    ? "Успешно Сохранил фотографию на диске"
-                    : "Не смог сохранить фотографию на диске";
-                
-                await bot.SendMessage(
-                    chatId: options.CurrentValue.AdminChat,
-                    text: responseMessage,
-                    cancellationToken: cancellationToken);
+                await HandlePhotoAsync(bot, update.Message.Photo!.Last(), cancellationToken);
                 return;
             }
             
@@ -73,6 +70,18 @@ public class BotHandler(
         if (ex.InnerException != null)
             Console.WriteLine($"Inner: {ex.InnerException.Message}");
     }
+
+    private async Task HandlePhotoAsync(ITelegramBotClient bot, PhotoSize photo, CancellationToken cancellationToken)
+    {
+        var responseMessage = await TryToSavePhoto(bot, photo)
+            ? "Успешно Сохранил фотографию на диске"
+            : "Не смог сохранить фотографию на диске";
+                
+        await bot.SendMessage(
+            chatId: optionsTelegram.CurrentValue.AdminChat,
+            text: responseMessage,
+            cancellationToken: cancellationToken);
+    }
     
     private Message? GetMessage(Update update)
     {
@@ -94,8 +103,14 @@ public class BotHandler(
             await bot.DownloadFile(tgFile, stream);
             stream.Position = 0;
 
-            var filename = await mediaService.SavePhoto(stream);
-            await brokerService.SendMessage(filename);
+            using var channel = GrpcChannel.ForAddress(optionsDisk.CurrentValue.HostName);
+            
+            var client = new DiskImager.DiskImagerClient(channel);
+            var request = new ImageUploadRequest { Image = await ByteString.FromStreamAsync(stream) };
+            
+            var uploadResponse = await client.ImageUploadAsync(request);
+            
+            await brokerService.SendMessage(uploadResponse.Filename);
             return true;
         }
         catch (Exception ex)

@@ -1,4 +1,4 @@
-namespace SenderTo.Core.Settings;
+namespace YandexDiskService;
 
 public class YandexSettings
 {
