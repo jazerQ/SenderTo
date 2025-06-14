@@ -1,4 +1,6 @@
 using WatermarkService;
+using WatermarkService.Services;
+using WatermarkService.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -7,8 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Protobuf Include="Protos\disk.proto" GrpcServices="Client" />
+    </ItemGroup>
+    
+    <ItemGroup>
         <PackageReference Include="Google.Protobuf" Version="3.31.1" />
-        <PackageReference Include="GroupDocs.Watermark" Version="25.2.0" />
         <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
         <PackageReference Include="Grpc.Tools" Version="2.72.0">
           <PrivateAssets>all</PrivateAssets>
@@ -16,6 +19,9 @@
         </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.14"/>
         <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
+        <PackageReference Include="SixLabors.Fonts" Version="2.1.3" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.10" />
+        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 

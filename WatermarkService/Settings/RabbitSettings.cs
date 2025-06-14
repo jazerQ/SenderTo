@@ -1,4 +1,4 @@
-namespace WatermarkService;
+namespace WatermarkService.Settings;
 
 public class RabbitSettings
 {
