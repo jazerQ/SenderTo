@@ -16,6 +16,7 @@ public class PublisherService(IHttpClientFactory factory, IOptionsMonitor<VkSett
     
     public override async Task<CreatePostResponse> CreatePost(CreatePostRequest request, ServerCallContext context)
     {
+        Console.WriteLine("Начало работы");
         var link = await GetUrl();
         
         var settings = await UploadFile(link, request.Image.ToByteArray());
@@ -49,17 +50,19 @@ public class PublisherService(IHttpClientFactory factory, IOptionsMonitor<VkSett
     {
         var paramets = new Dictionary<string, string>()
         {
-            { "access_token", options.CurrentValue.Token },
+            { "access_token", options.CurrentValue.UserToken },
             { "group_id", options.CurrentValue.GroupId },
             { "v", "5.131" }
         };
-
+    
         var content = string.Join("&", paramets.Select(pr => $"{pr.Key}={Uri.EscapeDataString(pr.Value)}"));
 
         var response = await _client.GetAsync($"{_uploadPhoto}?{content}");
         var json = await response.Content.ReadAsStringAsync();
+        Console.WriteLine(json);
         var link = JsonDocument.Parse(json).RootElement.GetProperty("upload_url").GetString();
-
+        
+        Console.WriteLine($"получил ссылку - {link}");
         return link;
     }
 
@@ -89,7 +92,7 @@ public class PublisherService(IHttpClientFactory factory, IOptionsMonitor<VkSett
     {
         var parameters = new Dictionary<string, string>
         {
-            { "access_token", options.CurrentValue.Token },
+            { "access_token", options.CurrentValue.UserToken },
             { "photo", settings.Photo },
             { "server", settings.Server.ToString() },
             { "hash", settings.Hash },

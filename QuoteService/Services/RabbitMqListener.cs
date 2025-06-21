@@ -1,7 +1,7 @@
 using System.Text;
 using Google.Protobuf;
 using Grpc.Net.Client;
-using GrpcDiskServiceApp;
+using GrpcDiskClientApp;
 using GrpcPublisherClientApp;
 using Microsoft.Extensions.Options;
 using QuoteService.Settings;
@@ -66,11 +66,11 @@ public class RabbitMqListener : BackgroundService
             var publishClient = new Publisher.PublisherClient(channelGrpcPublish);
             var imageClient = new DiskImager.DiskImagerClient(channelGrpcDisk);
             var downloadRequest = new ImageDownloadRequest { Filename = message };
-                
+            Console.WriteLine("скачиваю картинку");
             var downloadResponse = await imageClient.ImageDownloadAsync(downloadRequest);
 
             var publicRequest = new CreatePostRequest { Image = downloadResponse.Image, Content  = quote };
-
+            Console.WriteLine("Отправляю запрос в grpc");
             var publicResponse = await publishClient.CreatePostAsync(publicRequest);
 
             Console.WriteLine($"{quote} - post - {publicResponse.PostId}");
