@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcPublisherClientApp";
+
+package publisher;
+
+service Publisher {
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+}
+
+////CreatePost
+message CreatePostRequest{
+  bytes image = 1;
+  string content = 2;
+}
+message CreatePostResponse{
+  int32 post_id = 1;
+}
+////

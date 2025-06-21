@@ -1,4 +1,8 @@
 using System.Text;
+using Google.Protobuf;
+using Grpc.Net.Client;
+using GrpcDiskServiceApp;
+using GrpcPublisherClientApp;
 using Microsoft.Extensions.Options;
 using QuoteService.Settings;
 using RabbitMQ.Client;
@@ -11,12 +15,20 @@ public class RabbitMqListener : BackgroundService
     private readonly ConnectionFactory _factory;
     private IConnection? _connection;
     private readonly IOptionsMonitor<RabbitSettings> _options;
+    private readonly IOptionsMonitor<PublisherSettings> _publisherSettings;
+    private readonly IOptionsMonitor<DiskSettings> _diskSettings;
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly NeuroService _neuroService;
     
-    public RabbitMqListener(IOptionsMonitor<RabbitSettings> options, NeuroService neuroService)
+    public RabbitMqListener(
+        IOptionsMonitor<RabbitSettings> options,
+        IOptionsMonitor<PublisherSettings> publisherSettings,
+        IOptionsMonitor<DiskSettings> diskSettings,
+        NeuroService neuroService)
     {
         _options = options;
+        _publisherSettings = publisherSettings;
+        _diskSettings = diskSettings;
         _factory = new ConnectionFactory
         {
             HostName = _options.CurrentValue.HostName,
@@ -49,8 +61,19 @@ public class RabbitMqListener : BackgroundService
 
             Console.WriteLine($"Получено сообщение - {message}");
             var quote = await _neuroService.GetQuote();
-            
-            Console.WriteLine(quote);
+            using var channelGrpcPublish = GrpcChannel.ForAddress(_publisherSettings.CurrentValue.HostName);
+            using var channelGrpcDisk = GrpcChannel.ForAddress(_diskSettings.CurrentValue.HostName);
+            var publishClient = new Publisher.PublisherClient(channelGrpcPublish);
+            var imageClient = new DiskImager.DiskImagerClient(channelGrpcDisk);
+            var downloadRequest = new ImageDownloadRequest { Filename = message };
+                
+            var downloadResponse = await imageClient.ImageDownloadAsync(downloadRequest);
+
+            var publicRequest = new CreatePostRequest { Image = downloadResponse.Image, Content  = quote };
+
+            var publicResponse = await publishClient.CreatePostAsync(publicRequest);
+
+            Console.WriteLine($"{quote} - post - {publicResponse.PostId}");
             await ((AsyncEventingBasicConsumer)sender).Channel.BasicAckAsync(
                 eventArgs.DeliveryTag,
                 multiple: false,
