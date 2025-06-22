@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcDiskClientApp";
+
+package disk;
+
+service DiskImager {
+  rpc ImageUpload (ImageUploadRequest) returns (ImageUploadResponse);
+
+  rpc ImageDownload (ImageDownloadRequest) returns (ImageDownloadResponse);
+}
+
+////ImageUpload
+message ImageUploadRequest {
+  bytes image = 1;
+  string file_type = 2;
+}
+
+message ImageUploadResponse{
+  string filename = 1;
+}
+////
+
+////ImageDownload
+message ImageDownloadRequest{
+  string filename = 1;
+}
+
+message ImageDownloadResponse{
+  bytes image = 1;
+}
+////

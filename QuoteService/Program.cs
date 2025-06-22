@@ -11,7 +11,10 @@ builder.Services.Configure<RabbitSettings>(
     builder.Configuration.GetSection("RabbitSettings"));
 builder.Services.Configure<DeepSeekSettings>(
     builder.Configuration.GetSection("DeepSeekSettings"));
-
+builder.Services.Configure<PublisherSettings>(
+    builder.Configuration.GetSection("PublisherSettings"));
+builder.Services.Configure<DiskSettings>(
+builder.Configuration.GetSection("DiskSettings"));
 builder.Services.AddHostedService<RabbitMqListener>();
 
 var app = builder.Build();
