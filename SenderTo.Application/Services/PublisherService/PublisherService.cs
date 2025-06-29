@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using SenderTo.Core.Settings;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace SenderTo.Application.Services.PublisherService;
 
@@ -17,7 +18,8 @@ public class PublisherService(
         {
             await bot.SendPhoto(chatId: optionsTelegram.CurrentValue.PublishChannel,
                 InputFile.FromStream(ms),
-                caption: request.Content);
+                caption: request.Content + "\n<a href=\"https://t.me/papichOceniNick\">больше мыслей...</a>",
+                parseMode: ParseMode.Html);
         }
 
         return new CreatePostResponse();

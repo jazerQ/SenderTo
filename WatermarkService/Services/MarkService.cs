@@ -25,7 +25,7 @@ public class MarkService
             var fontFamily = _fontCollection.Add("minecraft_0.ttf");
             Font font = fontFamily.CreateFont(36, FontStyle.Bold);
             using (var newImg = img.Clone(ctx =>
-                       ApplyScalingWaterMark(ctx, font, "ExamplePic", Color.White, 5, false)))
+                       ApplyScalingWaterMark(ctx, font, "@papichOceniNick", Color.White, 5, false)))
             {
                 using (var ms = new MemoryStream())
                 {
