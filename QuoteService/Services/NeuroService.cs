@@ -20,7 +20,9 @@ public class NeuroService(IHttpClientFactory factory, IOptionsMonitor<DeepSeekSe
         var msg = new Message()
         {
             role = "user",
-            content = "Напиши философскую мысль, ничего лишнего просто философская мысль 10 слов. Один вариант, одна мысль, твое сообщение должно быть длинной максимум 80 символов, не пиши количество символов"
+            content = "Напиши философскую мысль, ничего лишнего просто философскую притчу" +
+                      " Один вариант, одна мысль" +
+                      " не пиши количество символов"
         };
 
         var requestModel = new ChatRequest()

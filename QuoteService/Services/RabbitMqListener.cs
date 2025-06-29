@@ -1,5 +1,6 @@
 using System.Text;
 using Google.Protobuf;
+using Grpc.Core;
 using Grpc.Net.Client;
 using GrpcDiskClientApp;
 using GrpcPublisherClientApp;
@@ -73,7 +74,7 @@ public class RabbitMqListener : BackgroundService
             Console.WriteLine("Отправляю запрос в grpc");
             var publicResponse = await publishClient.CreatePostAsync(publicRequest);
 
-            Console.WriteLine($"{quote} - post - {publicResponse.PostId}");
+            Console.WriteLine($"\"{quote}\" был отправлен в сообщество");
             await ((AsyncEventingBasicConsumer)sender).Channel.BasicAckAsync(
                 eventArgs.DeliveryTag,
                 multiple: false,

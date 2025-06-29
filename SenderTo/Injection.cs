@@ -1,6 +1,7 @@
 using SenderTo.Application.Services.RabbitService;
 using SenderTo.Application.Services.Telegram.Handler;
 using SenderTo.Core.Settings;
+using Telegram.Bot;
 
 namespace SenderTo;
 
@@ -19,6 +20,8 @@ public static class Injection
         #endregion
         #region TransientServices
         builder.Services.AddTransient<IBotHandler, BotHandler>();
+        builder.Services.AddTransient<ITelegramBotClient, TelegramBotClient>(x => new TelegramBotClient(
+            builder.Configuration.GetSection("TelegramBot").GetValue<string>("Token") ?? string.Empty));
         #endregion
         #region SingletonServices
         builder.Services.AddSingleton<IBrokerService, RabbitMqService>();
