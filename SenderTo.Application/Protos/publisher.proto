@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "GrpcPublisherClientApp";
+option csharp_namespace = "GrpcPublisherServiceApp";
 
 package publisher;
 
